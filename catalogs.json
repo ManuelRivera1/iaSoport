@@ -1,0 +1,122 @@
+[
+  {
+    "id": "009cbac85b0040c4a834ed0d5a1a8fae",
+    "category": "teams",
+    "name": "emma",
+    "project_id": null,
+    "active": 1,
+    "revision": 1
+  },
+  {
+    "id": "0584f83063df42e2b960bc55c03c9bb6",
+    "category": "types",
+    "name": "Procedimiento",
+    "project_id": null,
+    "active": 1,
+    "revision": 1
+  },
+  {
+    "id": "150c0b64afb0435593e20dcc289cc602",
+    "category": "types",
+    "name": "Microservicio",
+    "project_id": null,
+    "active": 1,
+    "revision": 1
+  },
+  {
+    "id": "20451c7972cf4f0da8d9b67d5f10015e",
+    "category": "projects",
+    "name": "admon-caneles",
+    "project_id": null,
+    "active": 1,
+    "revision": 1
+  },
+  {
+    "id": "22b76f0058064a13b17178c54757b613",
+    "category": "types",
+    "name": "Error o incidente",
+    "project_id": null,
+    "active": 1,
+    "revision": 1
+  },
+  {
+    "id": "3654dd7a88e94949b4cf3aeb5012aed5",
+    "category": "services",
+    "name": "ms-orders (ejemplo ficticio)",
+    "project_id": "924c3879d62842d782a4233f953ea2ca",
+    "active": 1,
+    "revision": 1
+  },
+  {
+    "id": "46f84085c3874844aa8eec2a5843994f",
+    "category": "services",
+    "name": "notification",
+    "project_id": "20451c7972cf4f0da8d9b67d5f10015e",
+    "active": 1,
+    "revision": 1
+  },
+  {
+    "id": "4f203c77e451436a992e3a6470de9613",
+    "category": "services",
+    "name": "Conciliaciones SFTP (ejemplo ficticio)",
+    "project_id": "924c3879d62842d782a4233f953ea2ca",
+    "active": 1,
+    "revision": 1
+  },
+  {
+    "id": "5a9c1e4967cc4a9082e2a51aca9f20bf",
+    "category": "services",
+    "name": "ms-payment (ejemplo ficticio)",
+    "project_id": "924c3879d62842d782a4233f953ea2ca",
+    "active": 1,
+    "revision": 1
+  },
+  {
+    "id": "8300617b82ed4819b26c75c86b0675be",
+    "category": "projects",
+    "name": "mascara-transacional",
+    "project_id": null,
+    "active": 1,
+    "revision": 1
+  },
+  {
+    "id": "924c3879d62842d782a4233f953ea2ca",
+    "category": "projects",
+    "name": "General",
+    "project_id": null,
+    "active": 1,
+    "revision": 1
+  },
+  {
+    "id": "a65835aa8ca04f17adf3558396171b52",
+    "category": "types",
+    "name": "API y endpoints",
+    "project_id": null,
+    "active": 1,
+    "revision": 1
+  },
+  {
+    "id": "b5886b798cfd48a5955e259be8e47451",
+    "category": "types",
+    "name": "Guía del proyecto",
+    "project_id": null,
+    "active": 1,
+    "revision": 3
+  },
+  {
+    "id": "ea787040d3e24094a9fe4d53d694cf86",
+    "category": "areas",
+    "name": "nu3740001",
+    "project_id": null,
+    "active": 1,
+    "revision": 1
+  },
+  {
+    "id": "ef2973691d8040f69c030d015b8bf591",
+    "category": "types",
+    "name": "GoAnyWhere",
+    "project_id": null,
+    "active": 1,
+    "revision": 1
+  }
+]
