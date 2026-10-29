@@ -57,7 +57,7 @@ $('incident-propose').addEventListener('click',async()=>{
 });
 function startNewIncident(){
   if(incidentDirty&&!confirm('¿Descartar los cambios sin guardar y empezar otro registro?'))return;
-  incidentDraft=null;incidentDirty=false;Object.entries(incidentFields).forEach(([key,id])=>$(id).value=key==='incident_status'?'investigating':'');populateIncidentCatalog();incidentReview(false);$('incident-state').textContent='Nuevo borrador';$('incident-diagnosis').open=false;showView('incident');
+  incidentDraft=null;incidentDirty=false;Object.entries(incidentFields).forEach(([key,id])=>$(id).value=key==='incident_status'?'investigating':'');populateIncidentCatalog();incidentReview(false);$('incident-state').textContent='Nuevo borrador';$('incident-diagnosis').open=false;showView('incident');return true;
 }
 $('incident-new').addEventListener('click',startNewIncident);
 populateIncidentCatalog();

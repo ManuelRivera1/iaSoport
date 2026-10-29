@@ -1,5 +1,13 @@
 # Support AI
 
+El chat responde a saludos, agradecimientos y solicitudes de ayuda sin cargar el
+modelo. Las consultas técnicas conservan las citas verificadas de la guía.
+Mientras espera una respuesta muestra un indicador de procesamiento y el tiempo
+transcurrido. Si no encuentra información suficiente, ofrece **Documentar
+conocimiento** y **Registrar un error**, conservando la pregunta en el formulario
+elegido. Estos datos quedan pendientes de completar; no se guardan ni se publican
+automáticamente.
+
 La barra superior incluye **Volver** e **Inicio del módulo**. También puedes usar
 Atrás y Adelante del navegador para volver entre pantallas, carpetas y documentos.
 En el chat, **Volver a las preguntas de inicio** recupera las tarjetas de sugerencias.

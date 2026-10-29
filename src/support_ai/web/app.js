@@ -47,7 +47,7 @@ function startNewDocument(){
   documentEpoch++;currentDraft=null;dirty=false;setData({});
   if(typeof applyCatalogs==='function')applyCatalogs();
   $('notes-assistant').open=false;form.querySelectorAll('details').forEach(detail=>detail.open=false);
-  setStep(1);$('draft-state').textContent='Nuevo borrador';$('saved-at').textContent='Borrador local · no enviado a Git';showView('editor');
+  setStep(1);$('draft-state').textContent='Nuevo borrador';$('saved-at').textContent='Borrador local · no enviado a Git';showView('editor');return true;
 }
 $('new-document').addEventListener('click',startNewDocument);
 $('start-new-document').addEventListener('click',startNewDocument);
@@ -79,21 +79,34 @@ function libraryTab(mode){libraryMode=mode;$('official-tab').classList.toggle('a
 $('official-tab').addEventListener('click',()=>libraryTab('official'));$('drafts-tab').addEventListener('click',()=>libraryTab('drafts'));$('library-search').addEventListener('input',renderLibrary);
 function addMessage(text,who){const el=node('div',undefined,'message '+who);el.append(node('strong',who==='user'?'Tú':'Support AI','message-label'),node('div',text));$('messages').append(el);return el;}
 let chatEpoch=0,chatAbort=null;
+function addChatActions(message,question,conversation=false){
+  const actions=node('div',undefined,'chat-actions');
+  if(conversation){const consult=node('button','Consultar mi guía','secondary');consult.type='button';consult.addEventListener('click',()=>{$('question').focus();$('question').placeholder='Cuéntame qué servicio, error o procedimiento quieres consultar…';});actions.append(consult);}
+  const documentButton=node('button','Documentar conocimiento','secondary');documentButton.type='button';
+  documentButton.addEventListener('click',()=>{if(!startNewDocument())return;if(!conversation){$('notes').value='Consulta pendiente de documentar: '+question;$('notes-assistant').open=true;markDirty();$('notes').focus();}});
+  const incidentButton=node('button','Registrar un error','secondary');incidentButton.type='button';
+  incidentButton.addEventListener('click',()=>{if(!startNewIncident())return;if(!conversation){$('incident-symptoms').value=question;incidentDirty=true;$('incident-state').textContent='Cambios sin guardar';$('incident-symptoms').focus();}});
+  actions.append(documentButton,incidentButton);message.append(actions);
+}
 function chatHome(clear=false){
   if(chatAbort){chatAbort.abort();chatAbort=null;chatEpoch++;document.querySelectorAll('.message.loading').forEach(message=>{message.classList.remove('loading');message.lastElementChild.textContent='Consulta interrumpida. Puedes hacer otra pregunta.';});}
   if(clear){chatEpoch++;$('messages').replaceChildren();}$('question').value='';
-  $('send').disabled=false;$('chat-welcome').classList.remove('hidden');$('messages').classList.add('hidden');$('chat-return').classList.add('hidden');
+  $('send').disabled=false;$('send').setAttribute('aria-label','Enviar pregunta');$('chat-welcome').classList.remove('hidden');$('messages').classList.add('hidden');$('chat-return').classList.add('hidden');
 }
 async function ask(question){
   const epoch=++chatEpoch;chatAbort=new AbortController();
   $('chat-welcome').classList.add('hidden');$('messages').classList.remove('hidden');$('chat-return').classList.remove('hidden');
   if(typeof recordNavigation==='function')recordNavigation('chat');
-  addMessage(question,'user');const message=addMessage('Buscando en tus documentos…','loading');$('send').disabled=true;
+  addMessage(question,'user');const message=addMessage('Procesando tu consulta y revisando tu guía…','loading');const body=message.lastElementChild;body.setAttribute('role','status');message.setAttribute('aria-busy','true');$('send').disabled=true;$('send').setAttribute('aria-label','Procesando consulta');
+  const started=Date.now();
+  const waiting=setInterval(()=>{if(epoch!==chatEpoch)return;const seconds=Math.floor((Date.now()-started)/1000);body.textContent=`Sigo procesando tu consulta (${seconds} s). La primera respuesta puede tardar mientras se carga el modelo.`;},10000);
   try{const result=await api('/api/v1/chat',{method:'POST',body:JSON.stringify({question}),signal:chatAbort.signal});if(epoch!==chatEpoch)return;
-    message.classList.remove('loading');message.lastElementChild.textContent=result.answer;
+    message.classList.remove('loading');body.textContent=result.answer;
+    if(result.abstained){body.textContent+='\n\n¿Quieres añadir lo que sabes a la guía o registrar el error para investigarlo? También puedes reformular la pregunta con el nombre del servicio y más detalles.';addChatActions(message,question);}
+    else if(result.kind==='conversation')addChatActions(message,question,true);
     if(result.sources.length){const details=node('details'),summary=node('summary',`Ver ${result.sources.length} fuentes`);details.append(summary);result.sources.forEach((source,i)=>{const block=node('div',undefined,'source-item');block.append(node('strong',`[${i+1}] ${source.path} · líneas ${source.start_line}–${source.end_line}`),node('p',source.quote),node('small','Versión '+source.commit.slice(0,12)));details.append(block);});message.append(details);}
   }catch(error){if(epoch!==chatEpoch||error.name==='AbortError')return;message.classList.remove('loading');message.lastElementChild.textContent=error.message;notify('Si aún no preparaste los documentos, usa Actualizar conocimiento.',true);}
-  finally{if(epoch===chatEpoch){chatAbort=null;$('send').disabled=false;if(!$('view-chat').classList.contains('hidden')&&$('chat-welcome').classList.contains('hidden')){$('question').focus();message.scrollIntoView({behavior:'smooth',block:'nearest'});}}}
+  finally{clearInterval(waiting);message.setAttribute('aria-busy','false');if(epoch===chatEpoch){chatAbort=null;$('send').disabled=false;$('send').setAttribute('aria-label','Enviar pregunta');if(!$('view-chat').classList.contains('hidden')&&$('chat-welcome').classList.contains('hidden')){$('question').focus();message.scrollIntoView({behavior:'smooth',block:'nearest'});}}}
 }
 $('chat-return').addEventListener('click',()=>{chatHome();if(typeof recordNavigation==='function')recordNavigation('chat');window.scrollTo(0,0);});
 $('chat-form').addEventListener('submit',event=>{event.preventDefault();const question=$('question').value.trim();if(question.length<3||$('send').disabled)return;$('question').value='';ask(question);});$('question').addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();$('chat-form').requestSubmit();}});

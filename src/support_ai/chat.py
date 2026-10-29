@@ -2,8 +2,10 @@
 
 import json
 import os
+import re
+import unicodedata
 from threading import Lock
-from typing import Annotated, Protocol
+from typing import Annotated, Literal, Protocol
 from urllib.parse import urlparse
 
 import httpx
@@ -104,6 +106,34 @@ class ChatResponse(BaseModel):
     abstained: bool
     indexed_commit: str
     sources: list[Citation]
+    kind: Literal["answer", "conversation"] = "answer"
+
+
+def conversational_reply(question: str) -> str | None:
+    normalized = unicodedata.normalize("NFKD", question.casefold())
+    normalized = "".join(char for char in normalized if not unicodedata.combining(char))
+    text = " ".join(re.findall(r"[a-z0-9]+", normalized))
+    # Match whole messages only: a greeting followed by a technical question must
+    # still go through retrieval and verified evidence selection.
+    if re.fullmatch(
+        r"(?:(?:hola|holi|hey|buenas|buenos dias|buenas tardes|buenas noches)"
+        r"(?: (?:support ai|support|como estas|que tal))?|como estas|que tal)", text,
+    ):
+        return (
+            "¡Hola! Qué gusto saludarte. ¿Qué vamos a hacer hoy?\n\n"
+            "Podemos consultar tu documentación, documentar algo que sabes o registrar "
+            "un error. Cuéntame qué necesitas; si buscas ayuda con un problema, "
+            "dime en qué servicio ocurre y qué mensaje aparece."
+        )
+    if text in {"ayuda", "ayudame", "que puedes hacer", "como funciona", "que hacemos hoy"}:
+        return (
+            "Estoy aquí para ayudarte. Puedes preguntarme por un servicio, un error "
+            "o un procedimiento de tu guía. También podemos documentar conocimiento "
+            "o registrar un error para investigarlo. ¿Por dónde empezamos?"
+        )
+    if text in {"gracias", "muchas gracias", "ok gracias", "listo gracias"}:
+        return "¡Con gusto! ¿Seguimos con otra consulta o quieres documentar lo que aprendiste?"
+    return None
 
 
 class ChatService:
@@ -113,6 +143,11 @@ class ChatService:
         self.lock = Lock()
 
     def answer(self, question: str) -> ChatResponse:
+        reply = conversational_reply(question)
+        if reply:
+            return ChatResponse(
+                answer=reply, abstained=False, indexed_commit="", sources=[], kind="conversation",
+            )
         with self.lock:
             result = self.retrieval.hybrid_search(question, top_k=4)
             if result.stale:

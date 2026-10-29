@@ -44,6 +44,37 @@ def test_verified_quotes_with_exact_lines():
     assert response.sources[0].commit == response.indexed_commit
 
 
+@pytest.mark.parametrize("question", [
+    "¡Hola!", "Buenos días", "Hola, ¿cómo estás?", "¿Qué tal?", "AYÚDAME", "Muchas gracias",
+])
+def test_conversation_works_without_documents_or_model(question):
+    # Neither dependency supports calls: social replies must bypass both.
+    response = ChatService(SimpleNamespace(), SimpleNamespace()).answer(question)
+    assert response.kind == "conversation"
+    assert not response.abstained
+    assert response.answer
+    assert response.sources == []
+
+
+@pytest.mark.parametrize("question", [
+    "Hola, ¿qué significa el error 504?", "Gracias, ¿cómo borro un pago?",
+    "¿Qué significa el error hola?", "Ayúdame con ms-payment",
+])
+def test_social_words_do_not_bypass_technical_evidence(question):
+    response = ChatService(retrieval(), generator(answerable=False)).answer(question)
+    assert response.kind == "answer"
+    assert response.abstained
+
+
+def test_greeting_http_without_prepared_index(tmp_path):
+    with TestClient(create_app(
+        database=tmp_path / "db.sqlite", vector_path=tmp_path / "qdrant", generator=generator(),
+    )) as client:
+        response = client.post("/api/v1/chat", json={"question": "Hola"})
+        assert response.status_code == 200
+        assert response.json()["kind"] == "conversation"
+
+
 @pytest.mark.parametrize("provider", [
     generator(answerable=False), generator(source_id=99),
     generator(quote="DELETE /api/payments/inventado"),
