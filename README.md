@@ -42,7 +42,10 @@ Cada persona descarga su copia, documenta y comparte los cambios desde la interf
 No requiere publicar la aplicación ni conectarse a una organización Git.
 
 1. En un equipo nuevo, ejecuta **Instalar Support AI.cmd** una vez. Requiere Git,
-   Python 3.12 o 3.13 e Internet para descargar dependencias y el modelo.
+   Internet para descargar dependencias y el modelo. El instalador busca Python
+   3.12 o 3.13; si falta, intenta instalar Python 3.13 mediante WinGet para el
+   usuario actual. Puedes conservar otras versiones de Python, incluida 3.15.
+   Si WinGet no esta disponible, el instalador indica como instalar Python 3.13.
 2. Ejecuta **Abrir Support AI.cmd**. En este equipo ya está instalado.
 3. Usa **Documentar conocimiento** para organizar notas por proyecto, área y tipo,
    incluyendo endpoints, CORS, autenticación, configuración y errores.

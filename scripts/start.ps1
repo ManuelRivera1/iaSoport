@@ -14,7 +14,9 @@ catch {
     }
     Start-Process -FilePath $ollamaExe -ArgumentList 'serve' -WindowStyle Hidden -WorkingDirectory $runtimePath -RedirectStandardOutput (Join-Path $runtimePath 'stdout.log') -RedirectStandardError (Join-Path $runtimePath 'stderr.log')
     $ready = $false
-    for ($attempt = 0; $attempt -lt 30; $attempt++) {
+    Write-Host 'Esperando a Ollama (la deteccion inicial de GPU puede tardar varios minutos)...'
+    $startupTimer = [System.Diagnostics.Stopwatch]::StartNew()
+    while ($startupTimer.Elapsed.TotalSeconds -lt 180) {
         Start-Sleep -Seconds 1
         try {
             $null = Invoke-RestMethod 'http://127.0.0.1:11434/api/version' -TimeoutSec 2

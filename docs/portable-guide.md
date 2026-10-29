@@ -46,6 +46,11 @@ del destinatario: las eliminaciones se revisan en la copia local.
 **Aplicación sin modelos** contiene código, instalador y guía aprobada. Excluye
 `data/`, `.venv`, cachés y modelos. El destinatario instala sus dependencias una vez.
 No es un ejecutable autónomo: requiere Git y Python 3.12 o 3.13.
+El instalador busca una de esas versiones y, si falta, intenta instalar Python
+3.13 con WinGet para el usuario actual, sin quitar otras versiones instaladas.
+Si no hay WinGet, muestra instrucciones para instalar Python manualmente.
+Un entorno `.venv` incompatible o incompleto debe renombrarse como respaldo
+antes de reinstalar. Conserva `data/` y `knowledge/`.
 
 Límites: 500 documentos, 512 KB por documento, 16 MB de texto por guía y 24 MB de
 archivos antes de comprimir la aplicación. Los ZIP se validan sin extraer rutas
